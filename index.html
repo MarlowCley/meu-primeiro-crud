@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Nomes</title>
+    <style>
+        #caixaTexto { margin-top: 10px; }
+        table { width: 100%; margin-top: 10px; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: center; border: 1px solid #ccc; }
+        td button { padding: 5px; cursor: pointer; border-radius: 3px; }
+        .delete-btn { background: red; color: white; }
+        .edit-btn { background: green; color: white; }
+        .fade-out { animation: fadeOut 0.3s forwards; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateX(50px); } }
+    </style>
+</head>
+<body>
+
+    <input type="text" id="caixaTexto" placeholder="Digite um nome...">
+    <button id="botao">Adicionar Nome</button>
+    <table id="tabelaNomes">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Editar</th>
+                <th>Excluir</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", carregarNomes);
+
+        document.getElementById("botao").addEventListener("click", () => {
+            let nome = document.getElementById("caixaTexto").value.trim();
+            if (nome === "") {
+                alert("Digite um nome!");
+                return;
+            }
+
+            fetch("/marlow/adicionar.php", {
+                method: "POST",
+                body: new URLSearchParams({ nome }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+            .then(response => response.json())
+            .then(() => {
+                carregarNomes();
+                document.getElementById("caixaTexto").value = "";
+            });
+        });
+
+        function carregarNomes() {
+            fetch("/marlow/listar.php")
+            .then(response => response.json())
+            .then(nomes => {
+                let tabela = document.querySelector("#tabelaNomes tbody");
+                tabela.innerHTML = "";
+                nomes.forEach(({ id, nome }) => {
+                    let row = tabela.insertRow();
+                    row.innerHTML = `
+                        <td>${nome}</td>
+                        <td></td>
+                        <td><button class="edit-btn" onclick="editarNome(${id}, '${nome}')">Editar</button></td>
+                        <td><button class="delete-btn" onclick="excluirNome(${id})">X</button></td>
+                    `;
+                });
+            });
+        }
+
+        function editarNome(id, nomeAtual) {
+            let novoNome = prompt("Edite o nome:", nomeAtual);
+            if (novoNome) {
+                fetch("/marlow/editar.php", {
+                    method: "POST",
+                    body: new URLSearchParams({ id, nome: novoNome.trim() }),
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" }
+                })
+                .then(() => carregarNomes());
+            }
+        }
+
+        function excluirNome(id) {
+            fetch("/marlow/excluir.php", {
+                method: "POST",
+                body: new URLSearchParams({ id }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+            .then(() => carregarNomes());
+        }
+    </script>
+
+</body>
+</html>
