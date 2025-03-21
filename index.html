@@ -40,7 +40,7 @@
                 return;
             }
 
-            fetch("/marlow/adicionar.php", {
+            fetch("/meu-primeiro-crud/adicionar.php", {
                 method: "POST",
                 body: new URLSearchParams({ nome }),
                 headers: { "Content-Type": "application/x-www-form-urlencoded" }
@@ -53,7 +53,7 @@
         });
 
         function carregarNomes() {
-            fetch("/marlow/listar.php")
+            fetch("/meu-primeiro-crud/listar.php")
             .then(response => response.json())
             .then(nomes => {
                 let tabela = document.querySelector("#tabelaNomes tbody");
@@ -62,7 +62,6 @@
                     let row = tabela.insertRow();
                     row.innerHTML = `
                         <td>${nome}</td>
-                        <td></td>
                         <td><button class="edit-btn" onclick="editarNome(${id}, '${nome}')">Editar</button></td>
                         <td><button class="delete-btn" onclick="excluirNome(${id})">X</button></td>
                     `;
@@ -73,7 +72,7 @@
         function editarNome(id, nomeAtual) {
             let novoNome = prompt("Edite o nome:", nomeAtual);
             if (novoNome) {
-                fetch("/marlow/editar.php", {
+                fetch("/meu-primeiro-crud/editar.php", {
                     method: "POST",
                     body: new URLSearchParams({ id, nome: novoNome.trim() }),
                     headers: { "Content-Type": "application/x-www-form-urlencoded" }
@@ -83,7 +82,7 @@
         }
 
         function excluirNome(id) {
-            fetch("/marlow/excluir.php", {
+            fetch("/meu-primeiro-crud/excluir.php", {
                 method: "POST",
                 body: new URLSearchParams({ id }),
                 headers: { "Content-Type": "application/x-www-form-urlencoded" }
